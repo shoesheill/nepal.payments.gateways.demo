@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Nepal.Payments.Gateway.Demo.Models;
-using Nepal.Payments.Gateways;
+using Nepal.Payments.Gateways.Demo.Models;
 using System.Diagnostics;
 
-namespace Nepal.Payments.Gateway.Demo.Controllers
+namespace Nepal.Payments.Gateways.Demo.Controllers
 {
     public class PaymentController(ILogger<PaymentController> logger, IConfiguration configuration)
         : Controller

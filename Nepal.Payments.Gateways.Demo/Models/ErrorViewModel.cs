@@ -1,4 +1,4 @@
-namespace Nepal.Payments.Gateway.Demo.Models
+namespace Nepal.Payments.Gateways.Demo.Models
 {
     public class ErrorViewModel
     {
