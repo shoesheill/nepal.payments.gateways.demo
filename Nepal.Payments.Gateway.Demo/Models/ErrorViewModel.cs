@@ -1,4 +1,4 @@
-namespace Khalti_Payment_Gateway_Demo.Models
+namespace Nepal.Payments.Gateway.Demo.Models
 {
     public class ErrorViewModel
     {

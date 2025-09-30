@@ -4,14 +4,14 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>Khalti_Payment_Gateway_Demo</RootNamespace>
+    <RootNamespace>Nepal.Payments.Gateway.Demo</RootNamespace>
     <UserSecretsId>4db98048-532d-4a72-9f28-a18518cd9a96</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
-    <PackageReference Include="plugin.web.eSewa.and.Khalti" Version="1.0.8" />
+    <PackageReference Include="Nepal.Payments.Gateways" Version="1.0.0" />
   </ItemGroup>
 
   </Project>

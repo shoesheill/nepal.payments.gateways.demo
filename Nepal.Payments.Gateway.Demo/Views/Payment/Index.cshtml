@@ -1,0 +1,96 @@
+@{
+    ViewData["Title"] = "Payment Gateway Demo";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Nepal Payment Gateway Demo</h1>
+    <p>Choose your preferred payment method:</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Payment Methods</h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Pay with Khalti</h6>
+                                <form method="post" asp-controller="Payment" asp-action="PayWithKhalti">
+                                    <button type="submit" class="btn btn-outline-primary">
+                                        <img src="~/img/Khalti logo.png" alt="Pay with Khalti" style="max-height: 50px;" />
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">Pay with eSewa</h6>
+                                <form method="post" asp-controller="Payment" asp-action="PayWitheSewa">
+                                    <button type="submit" class="btn btn-outline-success">
+                                        <img src="~/img/esewa logo.png" alt="Pay with eSewa" style="max-height: 50px;" />
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                @if (ViewBag.Message != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Success!</strong> @ViewBag.Message
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Error!</strong> @ViewBag.Error
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <h6>Test Credentials:</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">eSewa Test Credentials</h6>
+                        </div>
+                        <div class="card-body">
+                            <small>
+                                <strong>Username:</strong> 9806800001/2/3/4/5<br/>
+                                <strong>Password:</strong> Nepal@123<br/>
+                                <strong>Token:</strong> 123456
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">Khalti Test Credentials</h6>
+                        </div>
+                        <div class="card-body">
+                            <small>
+                                <strong>Mobile:</strong> 9800000001/2/3/4/5<br/>
+                                <strong>Pin:</strong> 1111<br/>
+                                <strong>OTP:</strong> 987654
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
