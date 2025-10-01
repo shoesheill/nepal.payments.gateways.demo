@@ -38,33 +38,10 @@ var paymentManager = new PaymentManager(
 
 ## Architecture Overview
 
-### Current Implementation Structure
-
-The library follows a factory pattern with service abstraction:
-
-```
-PaymentManager
-    ↓
-PaymentServiceFactory
-    ↓
-IPaymentService (V1/V2 implementations)
-    ↓
-PaymentEndpointFactory → ApiService → HTTP Client
-```
-
-### Key Components
-
-- **PaymentManager**: Main entry point for all payment operations
-- **PaymentServiceFactory**: Creates appropriate service instances based on method and version
-- **IPaymentService**: Interface implemented by eSewa and Khalti services
-- **PaymentEndpointFactory**: Manages API endpoints for different environments
-- **ResponseConverter**: Handles safe type conversions
-- **ApiService**: HTTP client wrapper with error handling
-
 ### Supported Versions
 
 - **eSewa**: V1, V2
-- **Khalti**: V1, V2
+- **Khalti**:  V2
 - **Environments**: Sandbox, Production
 
 ## eSewa Integration
