@@ -1,8 +1,16 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Nepal.Payments.Gateways.Demo.Models;
-using System.Diagnostics;
+using Nepal.Payments.Gateways.Enum;
+using Nepal.Payments.Gateways.Manager;
+using Nepal.Payments.Gateways.Models.Khalti;
+using Nepal.Payments.Gateways.Models.Khalti.Nepal.Payments.Gateways.Models.Khalti;
+using PaymentRequest = Nepal.Payments.Gateways.Models.Khalti.PaymentRequest;
+using PaymentResponse = Nepal.Payments.Gateways.Models.Khalti.PaymentResponse;
+using RequestResponse = Nepal.Payments.Gateways.Models.eSewa.RequestResponse;
+using ePaymentResponse =Nepal.Payments.Gateways.Models.eSewa.PaymentResponse;
 
-namespace Nepal.Payments.Gateways.Demo.Controllers
+namespace Nepal.Payments.Gateway.Demo.Controllers
 {
     public class PaymentController(ILogger<PaymentController> logger, IConfiguration configuration)
         : Controller
@@ -29,43 +37,41 @@ namespace Nepal.Payments.Gateways.Demo.Controllers
                     paymentMode: _sandBoxMode ? PaymentMode.Sandbox : PaymentMode.Production,
                     secretKey: _khaltiSecretKey
                 );
-                
-                var request = new
+                var request = new PaymentRequest()
                 {
-                    return_url = currentUrl,
-                    website_url = currentUrl,
-                    amount = 1300,
-                    purchase_order_id = "test12",
-                    purchase_order_name = "test",
-                    customer_info = new
+                    ReturnUrl = currentUrl,
+                    WebsiteUrl = currentUrl,
+                    Amount = 1300,
+                    PurchaseOrderId = "test12",
+                    PurchaseOrderName = "test",
+                    CustomerInfo = new CustomerInfo
                     {
-                        name = "Sushil Shreshta",
-                        email = "shoesheill@gmail.com",
-                        phone = "9846000027"
+                        Name = "Sushil Shreshta",
+                        Email = "shoesheill@gmail.com",
+                        Phone = "9846000027"
                     },
-                    product_details = new[]
+                    ProductDetails = new[]
                     {
-                        new
+                        new ProductDetail
                         {
-                            identity = "1234567890",
-                            name = "Khalti logo",
-                            total_price = 1300,
-                            quantity = 1,
-                            unit_price = 1300
+                            Identity = "1234567890",
+                            Name = "Khalti logo",
+                            TotalPrice = 1300,
+                            Quantity = 1,
+                            UnitPrice = 1300
                         }
                     },
-                    amount_breakdown = new[]
+                    AmountBreakdown = new[]
                     {
-                        new { label = "Mark Price", amount = 1000 },
-                        new { label = "VAT", amount = 300 }
+                        new AmountBreakdown { Label = "Mark Price", Amount = 1000 },
+                        new AmountBreakdown { Label = "VAT", Amount = 300 }
                     }
                 };
-                
                 var response = await paymentManager.InitiatePaymentAsync<dynamic>(request);
                 
-                if (response.IsSuccess && !string.IsNullOrEmpty(response.PaymentUrl))
+                if (response.Success && !string.IsNullOrEmpty(response.Data.PaymentUrl))
                 {
-                    return Redirect(response.PaymentUrl);
+                    return Redirect(response.Data.PaymentUrl);
                 }
                 else
                 {
@@ -95,15 +101,15 @@ namespace Nepal.Payments.Gateways.Demo.Controllers
                     secretKey: _eSewaSecretKey
                 );
                 
-                var request = new
+                var request = new Gateways.Models.eSewa.PaymentRequest()
                 {
-                    Amount = 100,
-                    TaxAmount = 10,
-                    TotalAmount = 110,
-                    TransactionUuid = "bk-" + new Random().Next(10000, 100000).ToString(),
+                    Amount = "100",
+                    TaxAmount = "20",
+                    TotalAmount = "120",
+                    TransactionUuid = "bk-" + new Random().Next(10000, 100000),
                     ProductCode = "EPAYTEST",
-                    ProductServiceCharge = 0,
-                    ProductDeliveryCharge = 0,
+                    ProductServiceCharge = "0",
+                    ProductDeliveryCharge = "0",
                     SuccessUrl = currentUrl,
                     FailureUrl = currentUrl,
                     SignedFieldNames = "total_amount,transaction_uuid,product_code"
@@ -111,9 +117,9 @@ namespace Nepal.Payments.Gateways.Demo.Controllers
                 
                 var response = await paymentManager.InitiatePaymentAsync<dynamic>(request);
                 
-                if (response.IsSuccess && !string.IsNullOrEmpty(response.PaymentUrl))
+                if (response?.Data is RequestResponse v)
                 {
-                    return Redirect(response.PaymentUrl);
+                    return Redirect(v.PaymentUrl);
                 }
                 else
                 {
@@ -149,9 +155,9 @@ namespace Nepal.Payments.Gateways.Demo.Controllers
                 
                 var response = await paymentManager.VerifyPaymentAsync<dynamic>(pidx);
                 
-                if (response.IsSuccess)
+                if (response?.Data is PaymentResponse v)
                 {
-                    ViewBag.Message = $"Payment with Khalti completed successfully with pidx: {response.TransactionId} and amount: {response.Amount}";
+                    ViewBag.Message = $"Payment with Khalti completed successfully with pidx: {v.TransactionId} and amount: {v.TotalAmount}";
                 }
                 else
                 {
@@ -188,9 +194,9 @@ namespace Nepal.Payments.Gateways.Demo.Controllers
                 
                 var response = await paymentManager.VerifyPaymentAsync<dynamic>(data);
                 
-                if (response.IsSuccess)
+                if (response?.Data is ePaymentResponse v)
                 {
-                    ViewBag.Message = $"Payment with eSewa completed successfully with data: {response.TransactionId} and amount: {response.Amount}";
+                    ViewBag.Message = $"Payment with eSewa completed successfully with data: {v.TransactionCode} and amount: {v.TotalAmount}";
                 }
                 else
                 {

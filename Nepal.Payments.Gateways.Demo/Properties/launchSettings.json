@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Khalti_Payment_Gateway_Demo": {
+    "Nepal.Payments.Gateways.Demo": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
