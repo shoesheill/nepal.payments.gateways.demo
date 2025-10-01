@@ -276,8 +276,6 @@ private async Task<ActionResult> VerifyKhaltiPayment(string pidx)
 ### 1. Environment Configuration
 
 ```csharp
-using Nepal.Payments.Gateways.Enum;
-
 // Use environment variables for sensitive data
 private readonly string eSewaSecretKey = Environment.GetEnvironmentVariable("ESEWA_SECRET_KEY");
 private readonly string khaltiSecretKey = Environment.GetEnvironmentVariable("KHALTI_SECRET_KEY");
