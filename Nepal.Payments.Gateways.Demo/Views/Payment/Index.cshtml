@@ -1,10 +1,10 @@
 @{
-    ViewData["Title"] = "Demo";
+    ViewData["Title"] = "Payment Demo";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Demo</h1>
-    <p>Choose your preferred payment method:</p>
+    <h1 class="display-4">Nepal Payment Gateways Demo</h1>
+    <p>Choose your preferred payment method</p>
 </div>
 
 <div class="row justify-content-center">
@@ -12,7 +12,8 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Payment Methods</h5>
-                
+
+                <!-- Khalti & eSewa -->
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <div class="card">
@@ -26,7 +27,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="col-md-6 mb-3">
                         <div class="card">
                             <div class="card-body text-center">
@@ -40,7 +41,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 @if (ViewBag.Message != null)
                 {
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -48,7 +49,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 }
-                
+
                 @if (ViewBag.Error != null)
                 {
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -56,16 +57,63 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 }
+
+                <hr/>
+
+                <!-- Fonepay QR Payment -->
+                <h5 class="mt-3">Fonepay QR Payment</h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Amount</label>
+                        <input type="number" min="1" step="0.01" class="form-control" id="fp-amount" placeholder="e.g. 100" value="100" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Remarks 1</label>
+                        <input type="text" maxlength="25" class="form-control" id="fp-remarks1" placeholder="Order #123" value="Test Order" />
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button class="btn btn-primary w-100" id="fp-generate">Generate QR</button>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">QR Code</div>
+                            <div class="card-body text-center">
+                                <div id="fp-qr-container" class="d-none">
+                                    <img id="fp-qr-image" alt="Fonepay QR" style="max-width: 260px;" />
+                                    <div class="small text-muted mt-2">Scan to pay</div>
+                                </div>
+                                <div id="fp-qr-placeholder" class="text-muted">Click "Generate QR" to create payment</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">Payment Status</div>
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    <span class="badge bg-secondary" id="fp-status">Ready</span>
+                                </div>
+                                <div id="fp-events" class="small" style="max-height: 200px; overflow-y: auto;">
+                                    <p class="text-muted">Payment events will appear here...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        
+
+        <!-- Test Credentials -->
         <div class="mt-4">
-            <h6>Test Credentials:</h6>
+            <h6>Test Credentials</h6>
             <div class="row">
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-header">
-                            <h6 class="mb-0">eSewa Test Credentials</h6>
+                            <h6 class="mb-0">eSewa Test</h6>
                         </div>
                         <div class="card-body">
                             <small>
@@ -79,7 +127,7 @@
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-header">
-                            <h6 class="mb-0">Khalti Test Credentials</h6>
+                            <h6 class="mb-0">Khalti Test</h6>
                         </div>
                         <div class="card-body">
                             <small>
@@ -94,3 +142,145 @@
         </div>
     </div>
 </div>
+
+<script src="https://unpkg.com/@@microsoft/signalr@@latest/dist/browser/signalr.min.js"></script>
+<script>
+(function () {
+    const el = (id) => document.getElementById(id);
+    const statusEl = el('fp-status');
+    const eventsEl = el('fp-events');
+    const qrImg = el('fp-qr-image');
+    const qrContainer = el('fp-qr-container');
+    const qrPlaceholder = el('fp-qr-placeholder');
+    const btnGen = el('fp-generate');
+
+    let currentPrn = null;
+    let signalRConnection = null;
+
+    function setStatus(text, variant) {
+        statusEl.className = 'badge bg-' + (variant || 'secondary');
+        statusEl.textContent = text;
+    }
+
+    function addEvent(message, type = 'info') {
+        const time = new Date().toLocaleTimeString();
+        const badge = type === 'success' ? 'success' : type === 'error' ? 'danger' : type === 'warning' ? 'warning' : 'info';
+        const html = `<div class="mb-1"><span class="badge bg-${badge}">${time}</span> ${message}</div>`;
+        eventsEl.innerHTML = html + eventsEl.innerHTML;
+    }
+
+    function renderQr(qrMessage) {
+        const url = 'https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=' + encodeURIComponent(qrMessage);
+        qrImg.src = url;
+        qrContainer.classList.remove('d-none');
+        qrPlaceholder.classList.add('d-none');
+    }
+
+    async function connectSignalR(prn) {
+        try {
+            signalRConnection = new signalR.HubConnectionBuilder()
+                .withUrl("/paymentHub")
+                .build();
+
+            signalRConnection.on("PaymentStatusUpdate", function (update) {
+                handlePaymentUpdate(update);
+            });
+
+            await signalRConnection.start();
+            addEvent('Connected to payment server', 'info');
+
+            await signalRConnection.invoke("JoinPaymentGroup", prn);
+            addEvent('Monitoring payment: ' + prn, 'info');
+        } catch (err) {
+            addEvent('Connection failed: ' + err.message, 'error');
+            setStatus('Connection Error', 'danger');
+        }
+    }
+
+    function handlePaymentUpdate(update) {
+        const eventType = update.eventType;
+        const data = update.data;
+
+        addEvent(`Event: ${eventType}`, 'info');
+
+        switch (eventType) {
+            case 'WEBSOCKET_CONNECTED':
+                setStatus('Connected - Scan QR', 'info');
+                addEvent('Waiting for QR scan...', 'info');
+                break;
+            case 'QR_VERIFIED':
+                setStatus('QR Scanned', 'warning');
+                addEvent('QR code scanned successfully!', 'warning');
+                break;
+            case 'PAYMENT_SUCCESS':
+                setStatus('Payment Successful', 'success');
+                addEvent('Payment completed successfully!', 'success');
+                break;
+            case 'PAYMENT_FAILED':
+                setStatus('Payment Failed', 'danger');
+                addEvent('Payment was declined or cancelled', 'error');
+                break;
+            case 'PAYMENT_CANCELLED':
+                setStatus('Payment Cancelled', 'warning');
+                addEvent('Payment cancelled by user', 'warning');
+                break;
+            case 'PAYMENT_VERIFIED':
+                setStatus('Verified & Complete', 'success');
+                addEvent('Payment verified by merchant', 'success');
+                break;
+            case 'PAYMENT_TIMEOUT':
+                setStatus('Payment Timeout', 'secondary');
+                addEvent('Payment session expired', 'warning');
+                break;
+            case 'WEBSOCKET_ERROR':
+                setStatus('Connection Error', 'danger');
+                addEvent('Error: ' + (data.message || 'Unknown error'), 'error');
+                break;
+        }
+    }
+
+    btnGen.addEventListener('click', async function () {
+        const amount = el('fp-amount').value.trim();
+        const remarks1 = el('fp-remarks1').value.trim();
+
+        if (!amount || parseFloat(amount) <= 0) {
+            alert('Please enter a valid amount');
+            return;
+        }
+
+        setStatus('Generating QR...', 'info');
+        eventsEl.innerHTML = '';
+
+        try {
+            const res = await fetch('/Payment/FonepayQr', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount, remarks1, remarks2: '' })
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to generate QR code');
+            }
+
+            const data = await res.json();
+
+            if (data && data.success) {
+                currentPrn = data.prn;
+                renderQr(data.qrMessage);
+                setStatus('QR Generated', 'success');
+                addEvent('QR code generated successfully', 'success');
+                addEvent('Amount: Rs. ' + amount, 'info');
+
+                // Connect to SignalR for real-time updates
+                await connectSignalR(currentPrn);
+            } else {
+                setStatus('Generation Failed', 'danger');
+                addEvent('Error: ' + (data.message || 'Unknown error'), 'error');
+            }
+        } catch (err) {
+            setStatus('Error', 'danger');
+            addEvent('Error: ' + err.message, 'error');
+        }
+    });
+})();
+</script>

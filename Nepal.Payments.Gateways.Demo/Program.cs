@@ -1,3 +1,5 @@
+using Nepal.Payments.Gateways.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +7,12 @@ builder.Services.AddControllersWithViews();
 
 // Add logging
 builder.Services.AddLogging();
+
+// Add SignalR
+builder.Services.AddSignalR();
+
+// Add Nepal Payment Gateways with WebSocket support
+builder.Services.AddNepalPaymentGateways();
 
 var app = builder.Build();
 
@@ -26,5 +34,8 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Map SignalR hub
+app.MapHub<Nepal.Payments.Gateways.Demo.Hubs.PaymentHub>("/paymentHub");
 
 app.Run();
