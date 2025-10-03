@@ -30,7 +30,7 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
         private readonly string _fonepayMerchantCode;
         private readonly string _fonepayUsername;
         private readonly string _fonepayPassword;
-        private readonly bool _sandBoxMode;
+        private bool _sandBoxMode;
 
         public PaymentController(
             ILogger<PaymentController> logger,
@@ -258,6 +258,7 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
         {
             try
             {
+                _sandBoxMode = false; // since Fonepay QR doesn't support sandbox mode
                 string amount = body.TryGetProperty("amount", out var a) ? a.GetString() ?? string.Empty : string.Empty;
                 string remarks1 = body.TryGetProperty("remarks1", out var r1) ? r1.GetString() ?? string.Empty : string.Empty;
                 string remarks2 = body.TryGetProperty("remarks2", out var r2) ? r2.GetString() ?? string.Empty : string.Empty;
@@ -344,6 +345,7 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
         {
             try
             {
+                _sandBoxMode = false; // since Fonepay QR doesn't support sandbox mode
                 string prn = body.TryGetProperty("prn", out var p) ? p.GetString() ?? string.Empty : string.Empty;
                 if (string.IsNullOrWhiteSpace(prn))
                 {

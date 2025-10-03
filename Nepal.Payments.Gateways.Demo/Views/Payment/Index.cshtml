@@ -2,49 +2,209 @@
     ViewData["Title"] = "Payment Demo";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Nepal Payment Gateways Demo</h1>
-    <p>Choose your preferred payment method</p>
-</div>
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Payment Methods</h5>
+<style>
+    .payment-demo-container {
+        background: #f8f9fa;
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .main-card {
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+    }
+    
+    .payment-gateway-card {
+        background: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .payment-gateway-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .payment-gateway-card.khalti {
+        border-color: #6c5ce7;
+    }
+    
+    .payment-gateway-card.esewa {
+        border-color: #00b894;
+    }
+    
+    .gateway-logo {
+        max-height: 50px;
+    }
+    
+    .test-credentials {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 5px;
+        padding: 10px;
+        margin-top: 10px;
+        font-size: 0.8rem;
+    }
+    
+    .test-credentials h6 {
+        color: #856404;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    
+    .test-credentials .credential-item {
+        margin-bottom: 3px;
+        color: #6c5a00;
+    }
+    
+    .fonepay-section {
+        background: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        padding: 20px;
+    }
+    
+    .warning-banner {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 15px;
+        position: relative;
+    }
+    
+    .warning-banner::before {
+        content: "⚠️";
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 1rem;
+    }
+    
+    .warning-banner .warning-content {
+        margin-left: 25px;
+    }
+    
+    .qr-container {
+        background: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        padding: 15px;
+        text-align: center;
+        min-height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .status-container {
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        padding: 15px;
+        min-height: 250px;
+    }
+    
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-weight: 600;
+    }
+    
+    .events-log {
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 10px;
+        max-height: 150px;
+        overflow-y: auto;
+        font-size: 0.8rem;
+    }
+    
+    .btn-modern {
+        border-radius: 5px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .btn-khalti {
+        background: #6c5ce7;
+        color: white;
+    }
+    
+    .btn-khalti:hover {
+        background: #5a4fcf;
+        color: white;
+    }
+    
+    .btn-esewa {
+        background: #00b894;
+        color: white;
+    }
+    
+    .btn-esewa:hover {
+        background: #00a085;
+        color: white;
+    }
+    
+    .btn-fonepay {
+        background: #0984e3;
+        color: white;
+    }
+    
+    .btn-fonepay:hover {
+        background: #0770c2;
+        color: white;
+    }
+    
+    .form-control-modern {
+        border-radius: 5px;
+        border: 1px solid #ced4da;
+        padding: 8px 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control-modern:focus {
+        border-color: #0984e3;
+        box-shadow: 0 0 0 0.2rem rgba(9, 132, 227, 0.25);
+    }
+    
+    .page-title {
+        color: #2d3436;
+        font-weight: 700;
+    }
+    
+    .section-title {
+        color: #2d3436;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+</style>
 
-                <!-- Khalti & eSewa -->
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">Pay with Khalti</h6>
-                                <form method="post" asp-controller="Payment" asp-action="PayWithKhalti">
-                                    <button type="submit" class="btn btn-outline-primary">
-                                        <img src="~/img/Khalti logo.png" alt="Pay with Khalti" style="max-height: 50px;" />
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">Pay with eSewa</h6>
-                                <form method="post" asp-controller="Payment" asp-action="PayWitheSewa">
-                                    <button type="submit" class="btn btn-outline-success">
-                                        <img src="~/img/esewa logo.png" alt="Pay with eSewa" style="max-height: 50px;" />
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+<div class="payment-demo-container">
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h1 class="display-5 page-title">Nepal Payment Gateways Demo</h1>
+            <p class="lead text-muted">Experience seamless payment integration with Nepal's leading payment gateways</p>
                 </div>
 
+        <!-- Messages -->
                 @if (ViewBag.Message != null)
                 {
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
                         <strong>Success!</strong> @ViewBag.Message
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -53,88 +213,130 @@
                 @if (ViewBag.Error != null)
                 {
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
                         <strong>Error!</strong> @ViewBag.Error
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 }
 
-                <hr/>
-
-                <!-- Fonepay QR Payment -->
-                <h5 class="mt-3">Fonepay QR Payment</h5>
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Amount</label>
-                        <input type="number" min="1" step="0.01" class="form-control" id="fp-amount" placeholder="e.g. 100" value="100" />
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Remarks 1</label>
-                        <input type="text" maxlength="25" class="form-control" id="fp-remarks1" placeholder="Order #123" value="Test Order" />
-                    </div>
-                    <div class="col-md-4 d-flex align-items-end">
-                        <button class="btn btn-primary w-100" id="fp-generate">Generate QR</button>
-                    </div>
-                </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <div class="card h-100">
-                            <div class="card-header">QR Code</div>
-                            <div class="card-body text-center">
-                                <div id="fp-qr-container" class="d-none">
-                                    <img id="fp-qr-image" alt="Fonepay QR" style="max-width: 260px;" />
-                                    <div class="small text-muted mt-2">Scan to pay</div>
-                                </div>
-                                <div id="fp-qr-placeholder" class="text-muted">Click "Generate QR" to create payment</div>
-                            </div>
+        <!-- Main Layout: Fonepay QR on Left, Payment Gateways on Right -->
+        <div class="row">
+            <!-- Fonepay QR Payment Section - Left Side -->
+            <div class="col-lg-6 mb-4">
+                <div class="fonepay-section">
+                    <h3 class="section-title">📱 Fonepay QR Payment</h3>
+                    
+                    <!-- Warning Banner -->
+                    <div class="warning-banner">
+                        <div class="warning-content">
+                            <h6 class="mb-2"><strong>⚠️ Important Notice</strong></h6>
+                            <p class="mb-1"><strong>Fonepay QR Payment uses REAL transactions!</strong></p>
+                            <p class="mb-0">• No test credentials available - test at your own risk</p>
+                            <p class="mb-0">• You can use amounts in paisa (e.g., 10000 paisa = 100 NPR)</p>
+                            <p class="mb-0">• Payments will be processed through real Fonepay gateway</p>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card h-100">
-                            <div class="card-header">Payment Status</div>
-                            <div class="card-body">
-                                <div class="mb-2">
-                                    <span class="badge bg-secondary" id="fp-status">Ready</span>
+
+                    <!-- Input Form -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Amount (NPR)</label>
+                            <input type="number" min="1" step="0.01" class="form-control form-control-modern" 
+                                   id="fp-amount" placeholder="e.g. 100" value="100" />
+                            <small class="text-muted">You can also use paisa (e.g., 10000 for 100 NPR)</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Remarks</label>
+                            <input type="text" maxlength="25" class="form-control form-control-modern" 
+                                   id="fp-remarks1" placeholder="Order #123" value="Test Order" />
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <button class="btn btn-modern btn-fonepay w-100" id="fp-generate">
+                            <i class="fas fa-qrcode me-2"></i>Generate QR
+                        </button>
+                </div>
+
+                    <!-- QR and Status Display -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="qr-container">
+                                <div id="fp-qr-container" class="d-none">
+                                    <img id="fp-qr-image" alt="Fonepay QR" style="max-width: 200px; border-radius: 5px;" />
+                                    <div class="mt-2">
+                                        <span class="badge bg-primary">Scan to pay with Fonepay</span>
+                                    </div>
                                 </div>
-                                <div id="fp-events" class="small" style="max-height: 200px; overflow-y: auto;">
-                                    <p class="text-muted">Payment events will appear here...</p>
+                                <div id="fp-qr-placeholder" class="text-muted">
+                                    <i class="fas fa-qrcode fa-2x mb-2" style="color: #dee2e6;"></i>
+                                    <p>Click "Generate QR" to create payment</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="status-container">
+                                <h6 class="mb-2">Payment Status</h6>
+                                <div class="mb-2">
+                                    <span class="status-badge bg-secondary text-white" id="fp-status">Ready</span>
+                                </div>
+                                <h6 class="mb-2">Payment Events</h6>
+                                <div id="fp-events" class="events-log">
+                                    <p class="text-muted mb-0">Payment events will appear here...</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Payment Gateways Section - Right Side -->
+            <div class="col-lg-6 mb-4">
+                <div class="main-card p-4">
+                    <h3 class="section-title">💳 Payment Gateways</h3>
+                    
+                    <!-- Khalti Gateway -->
+                    <div class="mb-4">
+                        <div class="payment-gateway-card khalti p-3">
+                            <div class="text-center mb-3">
+                                <img src="~/img/Khalti logo.png" alt="Khalti" class="gateway-logo mb-2" />
+                                <h5 class="mb-2" style="color: #6c5ce7;">Pay with Khalti</h5>
+                                <form method="post" asp-controller="Payment" asp-action="PayWithKhalti">
+                                    <button type="submit" class="btn btn-modern btn-khalti w-100">
+                                        <i class="fas fa-credit-card me-2"></i>Pay with Khalti
+                                    </button>
+                                </form>
         </div>
 
         <!-- Test Credentials -->
-        <div class="mt-4">
-            <h6>Test Credentials</h6>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="mb-0">eSewa Test</h6>
+                            <div class="test-credentials">
+                                <h6><i class="fas fa-key me-2"></i>Test Credentials</h6>
+                                <div class="credential-item"><strong>Mobile:</strong> 9800000001/2/3/4/5</div>
+                                <div class="credential-item"><strong>Pin:</strong> 1111</div>
+                                <div class="credential-item"><strong>OTP:</strong> 987654</div>
                         </div>
-                        <div class="card-body">
-                            <small>
-                                <strong>Username:</strong> 9806800001/2/3/4/5<br/>
-                                <strong>Password:</strong> Nepal@123<br/>
-                                <strong>Token:</strong> 123456
-                            </small>
                         </div>
                     </div>
+
+                    <!-- eSewa Gateway -->
+                    <div class="mb-4">
+                        <div class="payment-gateway-card esewa p-3">
+                            <div class="text-center mb-3">
+                                <img src="~/img/esewa logo.png" alt="eSewa" class="gateway-logo mb-2" />
+                                <h5 class="mb-2" style="color: #00b894;">Pay with eSewa</h5>
+                                <form method="post" asp-controller="Payment" asp-action="PayWitheSewa">
+                                    <button type="submit" class="btn btn-modern btn-esewa w-100">
+                                        <i class="fas fa-mobile-alt me-2"></i>Pay with eSewa
+                                    </button>
+                                </form>
                 </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="mb-0">Khalti Test</h6>
+                            
+                            <!-- Test Credentials -->
+                            <div class="test-credentials">
+                                <h6><i class="fas fa-key me-2"></i>Test Credentials</h6>
+                                <div class="credential-item"><strong>Username:</strong> 9806800001/2/3/4/5</div>
+                                <div class="credential-item"><strong>Password:</strong> Nepal@123</div>
+                                <div class="credential-item"><strong>Token:</strong> 123456</div>
                         </div>
-                        <div class="card-body">
-                            <small>
-                                <strong>Mobile:</strong> 9800000001/2/3/4/5<br/>
-                                <strong>Pin:</strong> 1111<br/>
-                                <strong>OTP:</strong> 987654
-                            </small>
                         </div>
                     </div>
                 </div>
@@ -158,7 +360,7 @@
     let signalRConnection = null;
 
     function setStatus(text, variant) {
-        statusEl.className = 'badge bg-' + (variant || 'secondary');
+        statusEl.className = 'status-badge bg-' + (variant || 'secondary') + ' text-white';
         statusEl.textContent = text;
     }
 
