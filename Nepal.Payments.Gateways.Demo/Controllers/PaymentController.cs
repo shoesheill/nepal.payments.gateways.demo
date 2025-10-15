@@ -1,19 +1,22 @@
-using System.Diagnostics;
-using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Nepal.Payments.Gateways.Demo.Models;
+using Microsoft.EntityFrameworkCore;
+using Nepal.Payments.Gateways.Demo.Data;
 using Nepal.Payments.Gateways.Demo.Hubs;
+using Nepal.Payments.Gateways.Demo.Models;
 using Nepal.Payments.Gateways.Enum;
 using Nepal.Payments.Gateways.Manager;
+using Nepal.Payments.Gateways.Models.Fonepay;
 using Nepal.Payments.Gateways.Models.Khalti;
 using Nepal.Payments.Gateways.Models.Khalti.Nepal.Payments.Gateways.Models.Khalti;
-using Nepal.Payments.Gateways.Models.Fonepay;
 using Nepal.Payments.Gateways.WebSocket;
+using System.Diagnostics;
+using System.Text.Json;
+using static Nepal.Payments.Gateways.Constants.ApiEndpoints;
+using ePaymentResponse = Nepal.Payments.Gateways.Models.eSewa.PaymentResponse;
 using PaymentRequest = Nepal.Payments.Gateways.Models.Khalti.PaymentRequest;
 using PaymentResponse = Nepal.Payments.Gateways.Models.Khalti.PaymentResponse;
 using RequestResponse = Nepal.Payments.Gateways.Models.eSewa.RequestResponse;
-using ePaymentResponse = Nepal.Payments.Gateways.Models.eSewa.PaymentResponse;
 
 namespace Nepal.Payments.Gateway.Demo.Controllers
 {
@@ -31,12 +34,13 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
         private readonly string _fonepayUsername;
         private readonly string _fonepayPassword;
         private bool _sandBoxMode;
+        private readonly AppDbContext _context;
 
         public PaymentController(
             ILogger<PaymentController> logger,
             IConfiguration configuration,
             IHubContext<PaymentHub> hubContext,
-            IPaymentWebSocketManager webSocketManager)
+            IPaymentWebSocketManager webSocketManager, AppDbContext context)
         {
             _logger = logger;
             _configuration = configuration;
@@ -57,6 +61,7 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
             _webSocketManager.PaymentTimeout += OnPaymentTimeout;
             _webSocketManager.PaymentError += OnPaymentError;
             _webSocketManager.PaymentCancelled += OnPaymentCancelled;
+            _context=context;
         }
 
         public IActionResult Index()
@@ -256,6 +261,7 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
         [HttpPost]
         public async Task<IActionResult> FonepayQr([FromBody] JsonElement body)
         {
+
             try
             {
                 _sandBoxMode = false; // since Fonepay QR doesn't support sandbox mode
@@ -290,6 +296,8 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
 
                 if (response.Success && response.Data != null)
                 {
+                    _context.FonepayTransactions.Add(new FonepayTransaction { Data= JsonSerializer.Serialize(response) });
+                    _context.SaveChanges();
                     var qrResponse = response.Data as QrResponse;
                     if (qrResponse != null)
                     {
@@ -398,6 +406,8 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
         // Event handlers for WebSocket events (registered in constructor)
         private async void OnStatusChanged(object? sender, PaymentStatusEventArgs args)
         {
+            _context.FonepayTransactions.Add(new FonepayTransaction { Data = JsonSerializer.Serialize(args) });
+            _context.SaveChanges();
             _logger.LogInformation("WebSocket Event - StatusChanged: PRN={Prn}, Status={Status}, QrVerified={QrVerified}, PaymentSuccess={PaymentSuccess}",
                 args.Prn, args.PaymentStatus, args.QrVerified, args.PaymentSuccess);
 
@@ -408,12 +418,15 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
         {
             _logger.LogInformation("WebSocket Event - PaymentVerified: PRN={Prn}, Success={Success}",
                 args.Prn, args.Success);
-
+            _context.FonepayTransactions.Add(new FonepayTransaction { Data = JsonSerializer.Serialize(args) });
+            _context.SaveChanges();
             await ProcessPaymentVerified(args);
         }
 
         private async void OnPaymentTimeout(object? sender, PaymentTimeoutEventArgs args)
         {
+            _context.FonepayTransactions.Add(new FonepayTransaction { Data = JsonSerializer.Serialize(args) });
+            _context.SaveChanges();
             _logger.LogInformation("WebSocket Event - PaymentTimeout: PRN={Prn}", args.Prn);
 
             await _hubContext.Clients.Group($"payment-{args.Prn}")

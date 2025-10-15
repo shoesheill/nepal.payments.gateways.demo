@@ -1,7 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using Nepal.Payments.Gateways.Demo.Data;
 using Nepal.Payments.Gateways.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
