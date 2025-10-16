@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  payments-app:
+    image: ghcr.io/shoesheill/nepal.payments.gateways.demo:latest
+    container_name: payments-app-demo
+    ports:
+      - "5000:8080"
+    volumes:
+      - ./appsettings.json:/app/appsettings.json:ro
+      - ./DataProtection-Keys:/root/.aspnet/DataProtection-Keys
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+    restart: unless-stopped
