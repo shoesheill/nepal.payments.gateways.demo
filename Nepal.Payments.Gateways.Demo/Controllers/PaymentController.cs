@@ -35,12 +35,13 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
         private readonly string _fonepayPassword;
         private bool _sandBoxMode;
         private readonly AppDbContext _context;
+        private readonly IServiceScopeFactory _scopeFactory;
 
         public PaymentController(
             ILogger<PaymentController> logger,
             IConfiguration configuration,
             IHubContext<PaymentHub> hubContext,
-            IPaymentWebSocketManager webSocketManager, AppDbContext context)
+            IPaymentWebSocketManager webSocketManager, AppDbContext context, IServiceScopeFactory serviceScopeFactory)
         {
             _logger = logger;
             _configuration = configuration;
@@ -61,7 +62,8 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
             _webSocketManager.PaymentTimeout += OnPaymentTimeout;
             _webSocketManager.PaymentError += OnPaymentError;
             _webSocketManager.PaymentCancelled += OnPaymentCancelled;
-            _context=context;
+            _context = context;
+            _scopeFactory=serviceScopeFactory;
         }
 
         public IActionResult Index()
@@ -406,8 +408,10 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
         // Event handlers for WebSocket events (registered in constructor)
         private async void OnStatusChanged(object? sender, PaymentStatusEventArgs args)
         {
-            _context.FonepayTransactions.Add(new FonepayTransaction { Data = JsonSerializer.Serialize(args) });
-            _context.SaveChanges();
+            using var scope = _scopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            context.FonepayTransactions.Add(new FonepayTransaction { Data = JsonSerializer.Serialize(args) });
+            context.SaveChanges();
             _logger.LogInformation("WebSocket Event - StatusChanged: PRN={Prn}, Status={Status}, QrVerified={QrVerified}, PaymentSuccess={PaymentSuccess}",
                 args.Prn, args.PaymentStatus, args.QrVerified, args.PaymentSuccess);
 
@@ -416,17 +420,21 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
 
         private async void OnPaymentVerified(object? sender, PaymentVerifiedEventArgs args)
         {
+            using var scope = _scopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             _logger.LogInformation("WebSocket Event - PaymentVerified: PRN={Prn}, Success={Success}",
                 args.Prn, args.Success);
-            _context.FonepayTransactions.Add(new FonepayTransaction { Data = JsonSerializer.Serialize(args) });
-            _context.SaveChanges();
+            context.FonepayTransactions.Add(new FonepayTransaction { Data = JsonSerializer.Serialize(args) });
+            context.SaveChanges();
             await ProcessPaymentVerified(args);
         }
 
         private async void OnPaymentTimeout(object? sender, PaymentTimeoutEventArgs args)
         {
-            _context.FonepayTransactions.Add(new FonepayTransaction { Data = JsonSerializer.Serialize(args) });
-            _context.SaveChanges();
+            using var scope = _scopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            context.FonepayTransactions.Add(new FonepayTransaction { Data = JsonSerializer.Serialize(args) });
+            context.SaveChanges();
             _logger.LogInformation("WebSocket Event - PaymentTimeout: PRN={Prn}", args.Prn);
 
             await _hubContext.Clients.Group($"payment-{args.Prn}")
