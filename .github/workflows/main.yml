@@ -32,5 +32,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/Nepal.Payments.Gateways.Demo:latest
-            ghcr.io/${{ github.repository }}/Nepal.Payments.Gateways.Demo:${{ github.sha }}
+            ghcr.io/${{ github.repository }}/nepal.payments.gateways.demo:latest
+            ghcr.io/${{ github.repository }}/nepal.payments.gateways.demo:${{ github.sha }}
