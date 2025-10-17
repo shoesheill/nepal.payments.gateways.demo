@@ -1,11 +1,10 @@
-# Base runtime image (ARM64 compatible)
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-bullseye-slim AS base
+# Use official .NET 9 SDK and runtime images (multi-arch compatible)
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-# SDK image (ARM64 compatible)
-FROM mcr.microsoft.com/dotnet/sdk:9.0-bullseye-slim AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 COPY ["Nepal.Payments.Gateways.Demo/Nepal.Payments.Gateways.Demo.csproj", "Nepal.Payments.Gateways.Demo/"]
 RUN dotnet restore "Nepal.Payments.Gateways.Demo/Nepal.Payments.Gateways.Demo.csproj"
