@@ -298,8 +298,8 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
 
                 if (response.Success && response.Data != null)
                 {
-                    _context.FonepayTransactions.Add(new FonepayTransaction { Data= JsonSerializer.Serialize(response) });
-                    _context.SaveChanges();
+                    //_context.FonepayTransactions.Add(new FonepayTransaction { Data= JsonSerializer.Serialize(response) });
+                    //_context.SaveChanges();
                     var qrResponse = response.Data as QrResponse;
                     if (qrResponse != null)
                     {
@@ -408,10 +408,10 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
         // Event handlers for WebSocket events (registered in constructor)
         private async void OnStatusChanged(object? sender, PaymentStatusEventArgs args)
         {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            context.FonepayTransactions.Add(new FonepayTransaction { Data = JsonSerializer.Serialize(args) });
-            context.SaveChanges();
+            //using var scope = _scopeFactory.CreateScope();
+            //var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            //context.FonepayTransactions.Add(new FonepayTransaction { Data = JsonSerializer.Serialize(args) });
+            //context.SaveChanges();
             _logger.LogInformation("WebSocket Event - StatusChanged: PRN={Prn}, Status={Status}, QrVerified={QrVerified}, PaymentSuccess={PaymentSuccess}",
                 args.Prn, args.PaymentStatus, args.QrVerified, args.PaymentSuccess);
 
@@ -431,10 +431,10 @@ namespace Nepal.Payments.Gateway.Demo.Controllers
 
         private async void OnPaymentTimeout(object? sender, PaymentTimeoutEventArgs args)
         {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            context.FonepayTransactions.Add(new FonepayTransaction { Data = JsonSerializer.Serialize(args) });
-            context.SaveChanges();
+            //using var scope = _scopeFactory.CreateScope();
+            //var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            //context.FonepayTransactions.Add(new FonepayTransaction { Data = JsonSerializer.Serialize(args) });
+            //context.SaveChanges();
             _logger.LogInformation("WebSocket Event - PaymentTimeout: PRN={Prn}", args.Prn);
 
             await _hubContext.Clients.Group($"payment-{args.Prn}")
